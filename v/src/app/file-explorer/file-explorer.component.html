@@ -1,0 +1,56 @@
+<mat-toolbar color="primary">
+  <button mat-button [matMenuTriggerFor]="menu"><mat-icon>file_upload</mat-icon>上传</button>
+  <input  #upfile type="file" style="filter:alpha(opacity=0);opacity:0;width: 0;height: 0;" multiple (change)="onGetUploadFile($event)">
+  <input  #upfold type="file" style="filter:alpha(opacity=0);opacity:0;width: 0;height: 0;" multiple webkitDirectory (change)="onGetUploadFold($event)">
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click) = "upfile.click()">上传文件</button>
+    <button mat-menu-item (click) = "upfold.click()">上传文件夹</button>
+  </mat-menu>
+  <button mat-button [disabled]="!selection.hasValue()"><mat-icon>file_download</mat-icon>下载</button>
+  <button mat-button [disabled]="!selection.hasValue()"><mat-icon>delete</mat-icon>删除</button>
+  <button mat-button><mat-icon>create_new_folder</mat-icon>新建文件夹</button>
+</mat-toolbar>
+<mat-toolbar>
+  <button mat-icon-button class="pureIconBtn"><mat-icon>keyboard_arrow_left</mat-icon></button>
+  <button mat-icon-button class="pureIconBtn"><mat-icon>keyboard_arrow_right</mat-icon></button>
+  <button mat-icon-button class="pureIconBtn" (click)="refreshTable()"><mat-icon>refresh</mat-icon></button>
+  <mat-chip-list #chipList>
+    <mat-chip *ngFor="let item of myViewStack;" (click)="pathClick(item)">
+      <mat-icon *ngIf="item._nodeIndex === -1">home</mat-icon>
+      <mat-icon *ngIf="item._nodeIndex !== -1">keyboard_arrow_right</mat-icon>
+      {{item._name}}
+    </mat-chip>
+  </mat-chip-list>
+</mat-toolbar>
+<mat-table #table [dataSource]="dataSource" matSort matSortActive="name" matSortDisableClear matSortDirection="asc">
+  
+  <ng-container matColumnDef="select">
+    <mat-header-cell *matHeaderCellDef>
+      <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+      </mat-checkbox>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row._nodeIndex) : null" [checked]="selection.isSelected(row._nodeIndex)">
+      </mat-checkbox>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> 文件名 </mat-header-cell>
+    <mat-cell *matCellDef="let row"> <span mat-button (click)="CellClick($event,row)" style='cursor:pointer'><u>{{row._name}}</u></span> </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="fileSize">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> 大小 </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row._fileSize}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="mtime">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> 上传时间 </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row._mtime | date}} </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;" [class.example-selected-row]="selection.isSelected(row._nodeIndex)" (click)="selection.toggle(row._nodeIndex)"></mat-row>
+</mat-table>
+<mat-toolbar>
+
+</mat-toolbar>
+<!--  (click)="CellClick(row)"-->
